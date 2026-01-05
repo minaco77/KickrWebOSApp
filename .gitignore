@@ -19,8 +19,42 @@ Icon[
 .com.apple.timemachine.donotpresent
 
 # Build artifacts from webOS projects
+dist/
+build/
+out/
 *.ipk
+*.log
 webOSTV*
+
+# Node / JS tooling
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --------------------
+# webOS simulator / emulator artifacts
+# --------------------
+.emulator/
+.simulator/
+.simulator-workspace/
+.webosstudio/
+
+# Temporary / cache files
+.cache/
+.tmp/
+tmp/
+.vscode/
+*.code-workspace
+
+# Environment / secrets
+.env
+.env.*
+!*.env.example
+
+# coverage / test output
+coverage/
 
 # Directories potentially created on remote AFP share
 .AppleDB
