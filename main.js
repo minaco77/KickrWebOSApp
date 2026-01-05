@@ -3,6 +3,13 @@ const IS_WEBOS = typeof window.webOS !== "undefined";
 const IS_SIMULATOR = !IS_WEBOS;
 const TARGET_NAME_SUBSTRING = "KICKR";
 
+function getServiceRequest() {
+  if (typeof webOS !== "undefined" && webOS.service && typeof webOS.service.request === "function") {
+    return webOS.service.request.bind(webOS.service);
+  }
+  return null;
+}
+
 // ============================================================================
 // UI Controller - manages DOM elements and user feedback
 // ============================================================================
@@ -50,17 +57,22 @@ class UIController {
 // BLE Manager - handles BLE service requests
 // ============================================================================
 class BLEManager {
-  constructor(uiController) {
+  constructor(uiController, serviceRequest) {
     this.ui = uiController;
+    this.request = serviceRequest || getServiceRequest();
     this.scanHandle = null;
     this.connectHandle = null;
     this.targetAddress = null;
   }
 
   checkBleEnabled() {
+    if (!this.request) {
+      this.ui.log("webOS service.request not available; cannot use BLE.");
+      return;
+    }
     this.ui.log("Checking BLE state...");
 
-    webOS.service.request("luna://com.webos.service.blegatt", {
+    this.request("luna://com.webos.service.blegatt", {
       method: "isEnabled",
       parameters: { subscribe: true },
       onSuccess: (res) => {
@@ -79,9 +91,13 @@ class BLEManager {
   }
 
   startScan() {
+    if (!this.request) {
+      this.ui.log("webOS service.request not available; cannot scan.");
+      return;
+    }
     this.ui.log("Starting BLE scan...");
 
-    this.scanHandle = webOS.service.request("luna://com.webos.service.blegatt", {
+    this.scanHandle = this.request("luna://com.webos.service.blegatt", {
       method: "startScan",
       parameters: { subscribe: true },
       onSuccess: (res) => {
@@ -111,7 +127,7 @@ class BLEManager {
   stopScan() {
     if (!this.scanHandle) return;
 
-    webOS.service.request("luna://com.webos.service.blegatt", {
+    this.request("luna://com.webos.service.blegatt", {
       method: "stopScan",
       parameters: {},
       onSuccess: (res) => {
@@ -133,10 +149,14 @@ class BLEManager {
       this.ui.log("No targetAddress set; cannot connect.");
       return;
     }
+    if (!this.request) {
+      this.ui.log("webOS service.request not available; cannot connect.");
+      return;
+    }
 
     this.ui.log("Connecting to " + this.targetAddress + "...");
 
-    this.connectHandle = webOS.service.request("luna://com.webos.service.blegatt", {
+    this.connectHandle = this.request("luna://com.webos.service.blegatt", {
       method: "client/connect",
       parameters: {
         subscribe: true,
@@ -309,3 +329,13 @@ window.addEventListener("load", () => {
     kickrApp.toggleConnection();
   });
 });
+
+if (typeof globalThis !== "undefined") {
+  globalThis.__kickrTestExports = {
+    UIController,
+    BLEManager,
+    GATTEventHandler,
+    SimulatorMode,
+    KickrController
+  };
+}

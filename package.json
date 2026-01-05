@@ -1,0 +1,14 @@
+{
+  "name": "webos-tv-poc",
+  "private": true,
+  "devDependencies": {
+    "jsdom": "^22.1.0",
+    "vite": "^4.5.0",
+    "vitest": "0.34.6"
+  },
+  "scripts": {
+    "test": "node scripts/vitest-runner.cjs run",
+    "test:ci": "node scripts/vitest-runner.cjs run --reporter=dot",
+    "test:watch": "node scripts/vitest-runner.cjs"
+  }
+}

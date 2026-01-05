@@ -54,7 +54,7 @@ tmp/
 !*.env.example
 
 # coverage / test output
-coverage/
+test/
 
 # Directories potentially created on remote AFP share
 .AppleDB
